@@ -1,8 +1,8 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import Card from '../UI/Card';
 import classes from "./AvailableMeals.module.css"
 import MealItem from './MealItem/MealItem';
-const DUMMY_MEALS = [
+/* const DUMMY_MEALS = [
     {
       id: 'm1',
       name: 'Sushi',
@@ -27,11 +27,61 @@ const DUMMY_MEALS = [
       description: 'Healthy...and green...',
       price: 18.99,
     },
-  ];
+  ]; */
 
 
 const AvailableMeals = () => {
-    const mealsList = DUMMY_MEALS.map(meal => 
+
+  const [meals, setMeals] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState()
+
+  useEffect( () => {
+   
+    const fetchMeals = async () => {
+        const response = await fetch('https://react-http-da75e-default-rtdb.firebaseio.com/meals.json')
+        if(!response.ok) {
+          throw new Error("Something went wrong!")
+        }
+        const responseData = await response.json()
+
+      
+        const loadedMeals = []
+
+        for (const key in responseData) {
+            loadedMeals.push({
+              id: key,
+              name: responseData[key].name,
+              description: responseData[key].description,
+              price: responseData[key].price
+
+            })
+
+        }
+
+        setMeals(loadedMeals)
+        setIsLoading(false)
+    }
+
+      fetchMeals().catch(err => {
+          setIsLoading(false)
+          setError(err.message)
+      })
+    
+  } , [])
+
+  if(isLoading){
+    return (
+      <section className={classes.mealsLoading}>Loading...</section>
+    )
+  }
+
+  if(error){
+      return (
+        <section className={classes.mealsError}>{error}</section>
+      )
+  }
+    const mealsList = meals.map(meal => 
       <MealItem 
         id={meal.id} 
         key={meal.id} 
@@ -39,7 +89,8 @@ const AvailableMeals = () => {
         description={meal.description}  
         price={meal.price}
       />)
-  return (
+  return (  
+    
     <section className={classes.meals}  >
         <Card >
             <ul>

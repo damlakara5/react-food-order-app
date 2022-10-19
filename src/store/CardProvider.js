@@ -56,6 +56,10 @@ const cardReducer = (state, action) => {
     };
   }
 
+  if(action.type === 'CLEAR'){
+    return defaultCardState;
+  }
+
   return defaultCardState;
 }
 const CardProvider = (props) => {
@@ -72,11 +76,18 @@ const CardProvider = (props) => {
       id:id
     })
   }
+
+  const clearCardHandler = () => {
+      dispatchCardAction({type: 'CLEAR'})
+  }
+
+
   const cardContext= {
     items: cardState.items,
     totalAmount: cardState.totalAmount,
     addItem: addItemHandler,
-    removeItem: removeItemHandler
+    removeItem: removeItemHandler,
+    clearCard: clearCardHandler
   }
   return (
     <CardContext.Provider  value={cardContext} >
